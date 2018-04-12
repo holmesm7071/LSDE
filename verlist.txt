@@ -1,0 +1,4 @@
+user Administrator $unixunix7071
+lcd /extract
+ls -v FileList.txt 
+bye

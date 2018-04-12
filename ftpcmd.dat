@@ -1,0 +1,7 @@
+user Administrator
+Unixunix#7071
+mdel *.dat
+bin
+lcd c:\extract
+put Sunquest_LastDateProcessed.txt
+bye

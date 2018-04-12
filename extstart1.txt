@@ -1,0 +1,6 @@
+mdel *.dat
+
+lcd c:\extract
+get Sunquest_LastDateProcessed.txt
+
+bye

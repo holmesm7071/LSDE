@@ -1,0 +1,13 @@
+@echo off
+echo userAdministrator > ftpcmd.dat
+echo $unixunix7071>> ftpcmd.dat
+echo bin>> ftpcmd.dat
+echo put %1>> ftpcmd.dat
+echo quit>> ftpcmd.dat
+!:--- FTP commands below here ---
+mdel *.dat
+
+lcd c:\extract
+get Sunquest_LastDateProcessed.txt
+
+bye

@@ -1,0 +1,4 @@
+user Administrator Unix#unix7071
+lcd c:/extract
+mput *.dat
+bye

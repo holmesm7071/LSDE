@@ -1,0 +1,4 @@
+user Administrator $unixunix7071
+lcd c:/extract
+put Sunquest_Last_Load.txt
+bye

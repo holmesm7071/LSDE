@@ -1,0 +1,1 @@
+Copy all items to C:\script

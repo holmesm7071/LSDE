@@ -1,0 +1,3 @@
+cd /script
+ftp -n -i %1 < extstart.txt
+exit

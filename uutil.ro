@@ -1,0 +1,319 @@
+Cache for Windows^INT^routine output by %apiRTN^^~Format=Cache.S~^RAW
+%RO on 28 Jul 2015 01:27:57PM
+uutil^INT^1^62565,22484.721701^0
+uutil;  Created 09-4-2007
+start ;   ; Compiled September 21, 2007 06:46:00 for Cache for UNIX
+ s cs="*27,*91,*50,*74,*27,*91,*72",qt=""""  
+ w @cs
+ s D1="\",D2="#",D3="!",D4="|",dvt="VT420",LDV=$i
+ s lab=^["LSDE"]ulab
+ S FMT="BLD,DBL,NOR,UDL,BLNK",RTN=$$INIT^TRM(FMT) F I=1:1:$L(FMT,",") S @$P(FMT,",",I)=$G(%TRM(LDV,$P(FMT,",",I)))
+ W !,UDL,?80,NOR
+ W !,UDL,?80,NOR 
+ w !!,?20,lab_"LSDE MENU"   
+ W !!,?15,"1. Enable/Disable Incremental Processor"   
+ W !!,?15,"2. Start/Stop Full Extract"   
+ W !!,?15,"3. Start/Stop Incremental Extract" 
+ w !!,?15,"4. Set SQL Server" 
+ w !!,?15,"5. Set Error Email Address "   
+ w !!,?15,"6. Show Summary"
+ w !!,?15,"7. Monitor Incremental Extract "  
+ W !!,UDL,?80,NOR
+ W !,UDL,?80,NOR 
+ w !!!,?20,"Enter option " r opt:300   
+ i (opt="")!(opt="*") q    
+ i opt'?1n w !,"Invaild Enter Select options 1-7 only",!,"Press Enter to Continue " r r g start   ;  
+ s rtn=$s(opt=1:"endis",opt=2:"ful",opt=3:"stex",opt=4:"ser",opt=5:"email",opt=6:"summ",opt=7:"cps",1:"") 
+ i rtn="" w !,"Invalid Entry Select Option 1 - 7",!,"Press Enter To Continue" r r 
+ d @rtn g start    
+ q  
+endis ; 
+ w @cs 
+ w !,UDL,?80,NOR
+ d POS(5,20) w "Enable/Disable Incremental Processor" 
+ s rx=1,str=$g(^["LSDE"]ultns) s:str["D" rx=2 
+ w !!,?20,"Control Proccessor is ",BLD,BLNK_qt_str_qt,NOR 
+ w !!,?20,qt,"1",qt," = Enable ",!!,?20,qt,"2",qt," = Disable "   
+ W !!,UDL,?80,NOR
+ w !!,?20,"Enter: " r r:60 
+ i r=rx  d  g endis   
+ . w !!,?20,"No action taken - Processsor is already ",str,!,?20,"Press Enter to Continue " r r  
+ i (r=1),(str="Enabled")!(r=2),(str="Disabled")  d  q   
+ . w !!,?20,"Processsor Status has not changed ",!,?20,"Press Enter to Continue " r r q  
+ i (r="")!(r="*") w !!,?20,"Processsor Status has not changed ",!,?20,"Press Enter to Continue " r r q  
+ i r'?1n w !!,?20,"Invaild Entry enter options 1 to enable 2 to disable ",!,?20,"Press enter to contine " r r:60 g endis 
+ i r=1 s ^["LSDE"]ultns="Enabled" w !!,?20,"Processor is being "_qt_"Enabled"_qt_" Please Wait " h 2 q  
+ i r=2 s ^["LSDE"]ultns="Disabled" d  q 
+ . w !!,?20,"Processor has being "_qt_"Disabled"_qt_" Please Wait " 
+ . d dism h 2
+ w !!,?20,"Invaild Entry enter options 1 to enable 2 to disable ",!,?20,"Press enter to contine " r r:60 g endis 
+ q 
+dism  ;
+  s sd=$h,st=$p(sd,",",2),sd=$p(sd,","),sd=$zd(sd),st=$zt(st) 
+  s erio="/extract/file1" 
+  o erio:"wns":2 
+  u erio w "WARNING!  Daily Incremental Processor has been disabled on ",sd," at",st
+  c erio 
+  s rmail=^["LSDE"]umail
+  f i=1:1 s em=$p(rmail,",",i) q:em=""  d 
+  . s dat="mail -s "_qt_"LSDE  Incremental Processor Disabled"_qt_" "_em_" < /extract/file1" 
+  . s rtn=$zf(-1,dat) 
+  q
+ful ; 
+   w @cs
+   W !,UDL,?80,NOR
+   w !,?25,"Start/Stop Full Extract"
+   w !!,?20,"1. Start Lab Full Extraction"
+   w !,?20,"2. Stop Lab Full Extraction"
+   W !!,UDL,?80,NOR
+  w !!!,?20,"Enter option " r opt:60   
+  i (opt="")!(opt="*") q    
+  i opt'?1n w !,"Invaild Enter Select options 1-2 only",!,"Press Enter to Continue " r r g ful   ;  
+  i opt=1 d fuls q 
+  i opt=2 d stful q 
+  g ful    
+  q
+fuls  ;
+  w @cs
+  W !,UDL,?80,NOR
+  w !!,?20,"Start Sunquest Lab System Full Extraction "
+  W !!,UDL,?80,NOR
+  w !,?30,qt_"N"_qt_"\Y " r r:60  
+  i r'="Y" w !,?20,BLD,"EXTRACT ABORTED",NOR,!,?20,"Press Enter To Continue" r r q  
+  W !,?10,BLNK,"WARNING ",NOR,"- PREPARING TO START FULL LAB RESULTS EXTRACTION "
+  W !,?15,"ARE YOU SURE "_qt_"N"_qt_"\Y " r r:60 
+  i r'="Y" w !,?30,BLD,"EXTRACT ABORTED",NOR,!?30,"Press Enter To Continue" r r q  
+ ;w !!,?5,"FULL EXTRACTION HAS BEEN DISABLED! PLEASE CONTACT LSDE PROGRAMMING STAFF"
+  w !!,?30,"FULL EXTRACTION STARTED"
+  w !,?35,"PLEASE WAIT  "
+  ;s dat="ksh /extract/fulextract"
+  ;s rtn=$zf(-1,dat) 
+  j full^ultn["LSDE"]
+  s ^["LSDE"]ufulx=$h
+  s sd=$h,st=$p(sd,",",2),sd=$p(sd,","),sd=$zd(sd),st=$zt(st) 
+  s erio="/extract/file1" 
+  o erio:"wns":2 
+  u erio 
+  w "WARNING!  Full Sunquest Lab Extraction Started on ",sd," at ",st
+  c erio 
+  s rmail=^["LSDE"]umail
+  f i=1:1 s em=$p(rmail,",",i) q:em=""  d 
+  . s dat="mail -s "_qt_"LSDE  Full Extraction Started"_qt_" "_em_" < /extract/file1" 
+  . s rtn=$zf(-1,dat) 
+  h 2
+  q
+stful   ;
+   w @cs
+   W !,UDL,?80,NOR 
+   s pid="umaster",pid1="uresall",msg="Searching for Full Extract Processes " d job 
+   g ful
+   q
+ser  ; 
+  w @cs 
+  W !,UDL,?80,NOR
+  w !!,?20,"Select Informatica SQL Server "  
+  s str=$g(^["LSDE"]uexstart("server",1)) s:str="" str="NONE" 
+  w !!,?2 
+  w !!,?20,"Server "_qt_str_qt," is receiving extracts"  
+  W !!,UDL,?80,NOR
+  w !,?20,"Do you want to change server ",qt_"N"_qt_"/Y? " r r:60  
+  i r'="Y" w !,?20,"Server ",qt,str,qt," has not been changed " h 2 q 
+  w !!,?20,"Enter server name: " r r:60 
+  i r="" w !,?20,qt,str,qt," has not been changed " h 2 q  
+  W !,?20,"You have selected server "_qt_r_qt 
+  w !,?20,"Is this correct Y/"_qt_"N"_qt_"? " r rr:60  
+  i rr'="Y" w !!,?20,"Server Set ABORTED " H 2 q 
+  s ^["LSDE"]uexstart("server",1)=r 
+  s sd=+$h,st=$p($h,",",2),sd=$zd(sd),st=$zt(st)
+  W !!,?10,"Setting server "_qt_str_qt," to server "_qt_r_qt," Please Wait " h 3 
+  s erio="/extract/file1"   
+  o erio:"wns":2   
+  u erio w "SQL server has been change from ",str," to ",r 
+  w !,"on ",sd," at ",st
+  c erio 
+  s rmail=^["LSDE"]umail
+  f i=1:1 s em=$p(rmail,",",i) q:em=""  d  
+  . s dat="mail -s "_qt_"LSDE SQL Sever Change"_qt_" "_em_" < /extract/file1"   
+  . s rtn=$zf(-1,dat)   
+  q                   
+email ;    
+  w @cs  
+  W !,UDL,?80,NOR 
+  w !!,?20,"Set Error Email Address"    
+  s smail=^["LSDE"]umail     ;
+  i smail="" w !!,?20,"No email addresses are defined "  
+  i smail'="" d    
+  . d POS(3,20) w "The following will receive error messages",! 
+  . f i=1:1 s em=$p(smail,",",i) q:em=""  w !,?20,qt,em,qt  
+  . d POS(20,0) w UDL,?80,NOR 
+  d POS(10,20) w "Change email addresses Y/"_qt_"N"_qt_"? " r rm:60   
+  i rm'="Y"  d  q   
+  . W !!,?20,"These emails remain unchanged!"    
+  . w ! f i=1:1 s em=$p(smail,",",i) q:em=""  w !,?20,qt,em,qt  
+  . w !?20,"Press Enter To Continue " r r 
+   s (rmail,mx)="" f i=1:1 s mx=$p(smail,",",i) q:mx=""  s gmail(mx)=""
+  f i=1:1 w !,?20,"Enter Email Address: " r em:60 q:em=""  d 
+  . i em["-" s em=$p(em,"-",2) d  q
+  .. w !,?20,UDL,BLD,"Delete",NOR_" ",em_" Y/"_qt_"N"_qt_"? " r r  
+  .. i r="Y" k gmail(em) w !,?20,em," Deleted " s rmail=1 h 2  q 
+  .. w !,?20,"Address "_em_" was not deleted " h 2
+  . s gmail(em)="" s rmail=1
+  i rmail="" d  q     
+  . w ! f i=1:1 s em=$p(smail,",",i) q:em=""  w !,?20,qt,em,qt 
+  . W !!,?20,"These emails remain unchanged!",!?20,"Press Enter To Continue " r r    
+  W !!,?20,"Error messages will be email to ",!   
+  s em="" f  s em=$o(gmail(em)) q:em=""  w !,?20,qt,em,qt    
+  w !!,?20,"Is this correct Y/N? " r rr:60  
+  i rr'="Y" w !,?20,"No change made to email addresses " h 3 q
+  s (rmail,em)="" f  s em=$o(gmail(em)) q:em=""  d  
+  . i rmail="" s rmail=em q  
+  . s rmail=rmail_","_em   
+  s ^["LSDE"]umail=rmail   
+  f i=1:1 s em=$p(rmail,",",i) q:em=""  w !,?20,qt,em,qt   
+  w !!,?20,"Has been set "  
+  w !,?20,"Do you wish to send test email message Y/"_qt_"N"_qt_"?  "  r r:60  
+  q:r'="Y"  
+  s erio="/extract/file1"   
+  o erio:"wns":2   
+  u erio w "This is a error reporting test message from" 
+  W !,"the Sunquest Clinical lab extract program"  
+  W !!,"If you have received this message in error contact"  
+  w !,lab_"Helpdesk "  
+  c erio  
+  f i=1:1 s em=$p(rmail,",",i) q:em=""  d  
+  . s dat="mail -s "_qt_"LSDE error Test message"_qt_" "_em_" < /extract/file1"   
+  . s rtn=$zf(-1,dat)   
+  . w !,?20,"Sendinng email to "_em_" Please wait " h 1  
+  q        
+summ  ; 
+  s lfe=^["LSDE"]ufulx,tt=$p(lfe,",",2),lfe=$P(lfe,",") ; last time
+  s lfe=$zd(lfe),tt=$zt(tt),lfe=lfe_" "_tt
+  s dat=^["LSDE"]ultn("start","trans"),lie=$p(dat,","),lie=$zd(lie) 
+  s tlie=$p(dat,",",2),tlie=$zt(tlie) 
+  s lie=lie_" "_tlie
+  w @cs 
+  W !,UDL,?80,NOR
+  w !!,?30,"LSDE Setup Summary" 
+  w !!,?10,"Incremental Processor Status",?50,^["LSDE"]ultns 
+  w !!,?10,"Last Full Extract",?50,lfe 
+  w !!,?10,"Last Incremental Extract",?50,lie
+  W !!,?10,"Informatica SQL Server",?50,^["LSDE"]uexstart("server",1) 
+  W !!,?10,"LSDE Email Addresses" 
+  s em=^["LSDE"]umail f i=1:1 s mail=$p(em,",",i) q:mail=""  d 
+  . w ?50,mail,! 
+  W UDL,?80,!!!,NOR
+  w !!?20,"Press Enter to Continue " r r 
+  q 
+time ; Convert $h to time 
+ S XTM=$E(100+(XTM\3600),2,3)_":"_$E(100+(XTM#3600\60),2,3)_":"_$E(100+(XTM#60),2,3) 
+ q
+stex  ; 
+  w @cs 
+  w !,UDL,?80,NOR 
+  w !,?25,"Start/Stop Incremental Extract"
+  w !!!,?25,"1. Start Incremental Extract " 
+  w !!,?25,"2. Stop Incremental Extract "
+  ;d POS(50,0) W UDL,?80,NOR 
+  w !!,UDL,?80,NOR 
+  w !!!,?25,"Enter option " r r:60   
+  i (r="")!(r="*") q  
+  i r'?1n w !,"Invaild Enter Select options 1-2 only",!,"Press Enter to Continue " r r g stex 
+   i r=1 d stin q  
+  i r=2 s pid="umasint",pid1="uresint",msg="Searching for Incremental Extract Processes" d job q
+   w !,?20,"Invalid Entry",!,"Press Enter To Continue " r r g stex 
+  q 
+stin   ;
+   s std=+$h-1,std=$zd(std)
+   s str=$g(^["LSDE"]ultns) i str["D" d  q
+   . w !!,?25,"Extract ",BLD,BLNK,"Disabled",NOR," and can not started "
+   . w !!,?25,"- Press Enter To Continue - " r r q
+   d POS(10,5) w !!,?25,"Enter Start Date or Press Enter for ",UDL,std,NOR," " r r:60
+   q:r="*"
+   s:r="" r=std
+   i ($l(r)'=10)!($l(r,"/")'=3) w !,?20,"Invalid Entry Enter Date(mm/dd/yyy) " g stin
+   s td=+$h-1,td=$zd(td)
+   s std=r w !!,?25,"Extract from "_std_" to "_td_" is this correct? "_qt_"N"_qt_"/Y " r r:60 s r=$$TRAN(r)
+   i r'="Y" d POS(25,5) w !!,"Incremental Extract was not started",!!," - Press Enter To Continue - " r r q
+   s ldv="/extract/Sunquest_LastDateProcessed.txt"
+   o ldv:"nws":5 i '$t  d  q
+   . w "Sunquest_LastDateProcessed.txt fail to open Extract ",BLD,"ABORTED",NOR 
+   . h 5
+   u ldv w "#PROCESSED_DATE",!,std
+   c ldv
+   ;s server=^["LSDE"]uexstart("server",1)
+   ;s dat="ksh /extract/startex "_qt_server_qt
+   ;s rtn=$zf(-1,dat) 
+   ;i rtn'=0 d POS(16,5)  d  q  
+   . w !!,?25,"Failed to execute control script startex on server "_server
+   . w !!,?25,"- Press Enter to continue - " r r 
+  ;s dat="ksh /extract/LSDEextract" 
+  ;s rtn=$zf(-1,dat)   
+  ;j str^ultn["LSDE"]  TEST
+  s sd=+$h,st=$p($h,",",2),sd=$zd(sd),st=$zt(st)
+  w !!,?20,"Incremental Extract Started on ",sd," at ",st,!
+  w !!,?25,"- Press Enter To Continue - " r r 
+  q
+cps  ;
+  w @cs
+  s (st,sd,sst,std)=""
+  s D1="\",D2="#",D3="!",D4="|",dvt="VT420"
+  s cps="Completed"
+  s rtn=$q(^["LSDE"]ultn) i rtn="" s cps="unknown status" g dis   ; check for processor node
+  s rtn=$q(^["LSDE"]ultn("stop")) s:rtn="" cps="Running"    ; check for processor stop
+  s st=$p(^["LSDE"]ultn("start","trans"),",",2),st=$zt(st)  ; get control processor start time
+  s sd=$p(^["LSDE"]ultn("start","trans"),","),sd=$zd(sd)    ; get control processor start date
+  i cps="Running" s xsp=0 d dis f  q:xsp  d
+  . s total=$g(^["LSDE"]uresint("total")) 
+  . w !!,?25,"Total Records Processed "_total  
+  . d POS(11,25) w "Press Enter to Continue " r r:3 i $t s xsp=1
+  . i $q(^["LSDE"]ultn("stop"))'="" s cps="Completed" w @cs g gst 
+gst 
+  q:cps="Running" 
+  s sst=$p(^["LSDE"]ultn("stop","trans"),",",2),sst=$zt(sst)   ; get control processor stop time
+  s std=$p(^["LSDE"]ultn("stop","trans"),","),std=$zd(std)    ; get control processor stop date
+dis  ;
+  W !,UDL,?80,NOR
+  w !,?25,"Incremental Extract Status"
+  w !!,?5,"Start Date/Time",?30,"Stop Date/Time",?60,"Extract Status"
+  w !!,?5,sd,?16,st,?30,std,?41,sst,?60,cps
+  s total=$g(^["LSDE"]uresint("total"))
+  s:total="" total=0
+  W !!,?25,"Total Records Processed "_total   
+  ;d POS(10,0) W UDL,?80,NOR
+  q:cps="Running"
+  w !?25,"Press Enter to Continue "  r r
+  q        
+POS(X,Y) ; Position cursor to x --> row and Y --> columns 
+ N LDV S LDV=$I 
+POS1 I $D(%TRM(LDV,"POS"))=0 Q:'$$INIT^TRM("POS") 
+ U LDV W %TRM(LDV,"POS",1)_(X+1)_%TRM(LDV,"POS",2)_(Y+1)_%TRM(LDV,"POS",3)  
+ S $X=$S(+Y>0:Y-1,1:0),$Y=$S(+X>0:+X,1:0)  
+ Q 
+job ; 
+  ;d POS(20,0) W UDL,?80,NOR 
+  w !!,?25,msg,!
+  s (p1,p2,p3,que)=0 k jtab D GET^%ZJTAB(.jtab) 
+  s j="",i=0 f z=0:0 s j=$o(jtab(j)) q:j=""!(que)  d 
+  . ;s zjob=$$PAR^%ZJOB(j) Do not remove
+  . s zjob=$VIEW(-1,j,1)
+  . w ?25,"." s i=i+1 i i>70 w ! s i=0 
+  . ;i $p(zjob,"\",6)="ultn" s id=$p(zjob,"\"),p3=1 w !,?25,"Stopping ultn" s rtn=$zu(4,id)  
+  . s proc=$p($p(zjob,"\",6),"^",2) 
+  . s jproc=$p($p(zjob,"\",10),"^",2)
+  . i zjob["ultn" s id=+$p(zjob,"\"),p1=1 w !!,?25,"Stopping ultn",!! s rtn=$zu(4,id)
+  . i zjob[pid d   
+  .. w !,?25,"Stopping "_pid 
+  .. s pid=+$p(zjob,"\") s rtn=$zu(4,pid) s p2=1 
+  . i zjob[pid1 d  
+  .. w !,?25,"Stopping "_pid1 
+  .. s pid1=+$p(zjob,"\") s rtn=$zu(4,pid1) s p3=1
+  . i (p1)&&(p2)&&(p3) s que=1
+  i (p1'=1)&&(p2'=1)&&(p3'=1) w !!,?25,"No Processes where found - Stop Aborted "
+  w !!,?25,"Press Enter to Continue " r r
+  q  
+TRAN(I)  ;
+         S I=$TR(I,"abcdefghijklmnopqrstuvwxyz","ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+         Q I
+
+
+
